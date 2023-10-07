@@ -1,0 +1,13 @@
+{
+  "version": 2,
+  "dgSpecHash": "9QrfR8qb1HgJMP4jQyVo5iQqm6ORP/sVT11u3uEDbeH8mKGIq2jSbHN1gnv6K32k6Ul1ovNKwT3lslZcvtGa3w==",
+  "success": true,
+  "projectFilePath": "d:\\PROGRAMACION\\INTERPRETE C# to HULK\\INTERPRETE C# to HULK.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\Cami\\.nuget\\packages\\microsoft.netcore.app.ref\\6.0.22\\microsoft.netcore.app.ref.6.0.22.nupkg.sha512",
+    "C:\\Users\\Cami\\.nuget\\packages\\microsoft.windowsdesktop.app.ref\\6.0.22\\microsoft.windowsdesktop.app.ref.6.0.22.nupkg.sha512",
+    "C:\\Users\\Cami\\.nuget\\packages\\microsoft.aspnetcore.app.ref\\6.0.22\\microsoft.aspnetcore.app.ref.6.0.22.nupkg.sha512",
+    "C:\\Users\\Cami\\.nuget\\packages\\microsoft.netcore.app.host.win-x64\\6.0.22\\microsoft.netcore.app.host.win-x64.6.0.22.nupkg.sha512"
+  ],
+  "logs": []
+}
