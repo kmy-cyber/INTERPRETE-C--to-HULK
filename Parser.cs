@@ -74,6 +74,7 @@ namespace INTERPRETE_C__to_HULK
                 Node name = new Node { Type = "name" , Value = TS[position-1].Value};
                 Expect(TokenType.EQUAL,"=");
                 Node value = Layer_6();
+                Exceptions_Missing(value,"let-in");
 
                 Node var = new Node { Type = "assigment", Children = new List<Node>{name,value}}; 
                 assigments.Children.Add(var);
@@ -82,6 +83,7 @@ namespace INTERPRETE_C__to_HULK
 
             Expect(TokenType.IN,"in");
             Node operations = Global_Layer();
+            Exceptions_Missing(operations,"let-in");
 
             Node variable = new Node { Type = "Let", Children = new List<Node>{assigments,operations} }; 
             return variable;
@@ -134,6 +136,7 @@ namespace INTERPRETE_C__to_HULK
             Expect( TokenType.R_PHARENTESYS,")" );
             Expect( TokenType.DO, "=>");
             Node operation = Global_Layer();
+            Exceptions_Missing(operation,"function");
             Node function = new Node { Type = "Function", Children = new List<Node>{ function_name, parammeters, operation}};
             return function; 
         }
@@ -147,6 +150,7 @@ namespace INTERPRETE_C__to_HULK
                 {
                     string? op = Convert.ToString(TS[position ++].Value);
                     Node right = Layer_5();
+                    Exceptions_Missing(right,"");
                     node = new Node { Type = op, Children = new List<Node>{node,right}};
                 }
                 return node;
@@ -159,6 +163,7 @@ namespace INTERPRETE_C__to_HULK
                 {
                     string? op = Convert.ToString(TS[position++].Value);
                     Node right = Layer_4();
+                    Exceptions_Missing(right,"");
                     node = new Node { Type = op, Children = new List<Node> { node, right } };
                 }
                 return node;
@@ -170,6 +175,7 @@ namespace INTERPRETE_C__to_HULK
                 {
                     string? op =  Convert.ToString(TS[position++].Value);
                     Node right = Layer_3();
+                    Exceptions_Missing(right,"");
                     node = new Node { Type = op, Children = new List<Node> { node, right } };
                 }
                 return node;
@@ -182,6 +188,7 @@ namespace INTERPRETE_C__to_HULK
                 {
                     string? op =  Convert.ToString(TS[position++].Value);
                     Node right = Layer_2();
+                    Exceptions_Missing(right,"");
                     node = new Node { Type = op, Children = new List<Node> { node, right } };
                 }
                 return node;
@@ -196,6 +203,7 @@ namespace INTERPRETE_C__to_HULK
                 {
                     string? op = Convert.ToString(TS[position++].Value);
                     Node right = Layer_1();
+                    Exceptions_Missing(right,"");
                     node = new Node { Type = op, Children = new List<Node> { node, right } };
                 }
                 return node;
@@ -208,6 +216,7 @@ namespace INTERPRETE_C__to_HULK
                 {
                     string? op = Convert.ToString(TS[position++].Value);
                     Node right = Factor();
+                    Exceptions_Missing(right,"");
                     node = new Node { Type = op, Children = new List<Node> { node, right } };
                 }
                 return node;
@@ -327,7 +336,7 @@ namespace INTERPRETE_C__to_HULK
 
                 else
                 {
-                    Input_Error("its not a number ,')' or a string" );
+                    //Input_Error("its not a number ,')' or a string" );
                     return new Node{Type="error",Value=0};
                 }
             }
@@ -340,6 +349,22 @@ namespace INTERPRETE_C__to_HULK
                 throw new Exception("SYNTAX ERROR: " + error);
             }
 
+            private void Exceptions_Missing(Node node, string op)
+            {
+                if(node.Type == "error")
+                {
+                    if(op == "")
+                    {
+                       Input_Error($"Missing expression after variable `{TS[position-1].Value}`");
+                    }
+                    else
+                    {
+                        string msg = $"Missing expression in `{op}` after variable `{TS[position-1].Value}`";
+                        Input_Error(msg);
+                    } 
+                }
+            }
+
             public void Expect(TokenType tokenType, object value)
             {
                 if(TS[position].Type == tokenType)
@@ -348,7 +373,7 @@ namespace INTERPRETE_C__to_HULK
                 }
                 else
                 {
-                    Input_Error("[" +position + "] " + (string)value + " Expected!, " + TS[position].Value + "was received");
+                    Input_Error($"[{position}] `{value}` Expected! after `{TS[position-1].Value}`,`{TS[position].Value}` was received");
                 }
             }
 
