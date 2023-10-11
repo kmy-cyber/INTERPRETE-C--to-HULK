@@ -6,12 +6,12 @@ using System.Threading.Tasks;
 
 namespace INTERPRETE_C__to_HULK
 {
+    //Definiendo el objeto Node
     public class Node
     {
-
-        public string? Type { get; set; }
-        public dynamic? Value { get; set; }
-        public List<Node> Children { get; set; }
+        public string? Type { get; set; } //tipo de Nodo
+        public dynamic? Value { get; set; } // Valor 
+        public List<Node> Children { get; set; } // Lista de hijos del nodo
 
         public Node()
         {

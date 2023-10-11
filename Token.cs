@@ -9,10 +9,6 @@ namespace INTERPRETE_C__to_HULK
 
         //?OPERADORES
         OPERATOR,
-       // PLUS,
-       // MINUS,
-       // MULTIPLY,
-       // DIVIDE,
         EQUAL,
         DO,
 
@@ -43,9 +39,10 @@ namespace INTERPRETE_C__to_HULK
         EOF
     }
 
-    public class Token {
-        public TokenType Type { get; }
-        public object Value { get; }
+    // Definiendo objeto token
+    public class Token { 
+        public TokenType Type { get; } //tipo de token
+        public object Value { get; } //valor del token
 
         public Token(TokenType type, object value) {
             Type = type;

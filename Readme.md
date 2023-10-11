@@ -1,191 +1,201 @@
 # HULK: Havana University Language for Kompilers
 
-En este proyecto usted implementará un intérprete del lenguaje de programación [HULK](https://matcom.in/hulk).
+> II Proyecto de Programación.\
+> Facultad de Matemática y Computación - Universidad de La Habana.\
+> Cursos 2022 - 2023.\
+> Arianne Camila Palancar Ochando C111
 
-Para completar el proyecto, usted debe implementar un subconjunto de HULK, que definiremos a continuación. 
-HULK es un lenguaje mucho más grande que lo requerido en este proyecto, y usted tiene la libertad de implementar cualquier funcionalidad adicional que desee.
 
-> En 3er año, en la asignatura de Compilación, usted verá como implementar un compilador completamente funcional del lenguaje HULK en su totalidad.
+`HULK` es un lenguaje de programación imperativo, funcional, estática y fuertemente tipado. Casi todas las instrucciones en HULK son expresiones, en este caso comprendidas en una sola linea y siempre terminando con un punto y coma `';'`
 
-## El lenguaje HULK (simplificado)
 
-HULK es un lenguaje de programación imperativo, funcional, estática y fuertemente tipado. Casi todas las instrucciones en HULK son expresiones. 
-En particular, el subconjunto de HULK que usted implementar se compone solamente de expresiones que pueden escribirse en una línea.
+## ¿Cómo funciona?
+`Clase Program` : Controla el flujo de datos del Interprete.
 
-### Expresiones básicas
+### Diagrama del flujo de datos:
 
-Todas las instrucciones en HULK terminan en `;`. La instrucción más simple en HULK que hace algo es la siguiente:
+![Diagrama de flujo de datos](./D_F_1.drawio.png)
 
-```js
-print("Hello World");
+### [ Leyenda ]
+
+1. **Consola (Console)**: Es la interfaz donde los usuarios interactúan con el programa, introduciendo la entrada y viendo la salida.
+
+2. **Entrada (Input)**: Es el texto que recibe de la consola y se manda al lexer.
+
+3. **Analizador Léxico (Lexer)**: Esta etapa toma la entrada de texto y la convierte en una lista de tokens.
+
+4. **Lista de Tokens (Token List)**: Esta es la salida del Analizador Léxico. Es una lista de todos los tokens extraídos del código fuente y son enviados al Parser.
+
+5. **Analizador Sintáctico (Parser)**: Esta etapa toma la lista de tokens y construye un Árbol de Sintaxis Abstracta (AST). 
+
+6. **Árbol de Sintaxis Abstracta (AST Tree)**: Este es el resultado del Analizador Sintáctico. Representa la estructura del programa de una manera que es fácil de procesar para las siguiente etapa (Semantic Analyzer).
+
+7. **Analizador Semántico (Semantic Analyzer)**: Esta etapa toma el AST y realiza varias comprobaciones para asegurarse de que el código tiene sentido desde el punto de vista semántico. Evalua las expresiones y ejecuta las operciones correspondientes
+
+8. **Salida (Output)**: Finalmente, después de que todas las etapas anteriores se han completado con éxito, el intérprete produce una salida.
+
+
+
+## **`Lexer`** (Analizador Lexico)
+**`El Lexer`** se encarga del análisis léxico del lenguaje. Lee el texto de entrada y genera una secuencia de tokens que representan las unidades básicas del lenguaje. Cada token tiene un tipo que indica qué tipo de unidad léxica representa (por ejemplo, un número, una cadena, un identificador, un operador, etc).
+
+La clase Lexer tiene un método llamado `Get_Sequency()`, que toma una cadena de texto como entrada y devuelve una lista de tokens. Este recorre la cadena de texto, uno por uno, y para cada caracter (mediante el resto de metodos de la clase) reconoce el tipo de token que le corresponde y lo guarda en la lista y el proceso continúa con el siguiente carácter en la cadena de texto.
+
+
+
+#### _Acerca de los errores_:
+Los posibles errores lexicos de un interprete son aquellos que se producen cuando en interprete no reconoce o no procesa correctamente los simbolos o las palabras que forman parte del lenguaje que esta interpretando.
+Por ejemplo: 
+
+![Diagrama de flujo de datos](./Lexical_error.png)
+
+
+
+## **`Parser`** (Analizador Sintactico)
+
+**`El parser`** se encargara de analizar la lista de tokens recibidas del Lexer y establecer una estructura coherente para la formacion de expresiones, a través de un AST (Árbol de Sintaxis Abstracta), sobre el cual se hablara más adelante.
+
+La clase Parser que toma una secuencia de tokens y construye un árbol de análisis sintáctico. El método `Global_Layer()` decide qué acción tomar en función del token actual. Si el token es “print”, “let”, “if” o “function”, se llama a los métodos correspondientes. Si no es ninguno de estos, se llama al método `Layer_6()`
+
+- `Assigment()` : Este método se encarga de procesar las asignaciones de variables en el lenguaje. Primero, espera un token de tipo **VARIABLE** que será el nombre de la variable. Luego, espera un token de tipo **EQUAL** y después obtiene el valor que se le asignará a la variable llamando al método  `Layer_6()`. Este proceso se repite para cada asignación separada por comas. Finalmente, espera un token de tipo **IN** y obtiene las operaciones a realizar después de las asignaciones llamando al método `Global_Layer()`. Retorna un nodo de tipo _“Let”_ que contiene todas las asignaciones y las operaciones.
+    ### Estructura
+    `let` + **Variable** + **'='** + **Expresión o Valor** + `in` + **Expresión** + **;**
+
+- `Showing()` : Este método se encarga de procesar las impresiones en el lenguaje. Espera un token de tipo **L_PHARENTESYS**, luego obtiene la expresión a imprimir llamando al método `Global_Layer()` y finalmente espera un token de tipo **R_PHARENTESYS**. Retorna un nodo de tipo _“print”_ que contiene la expresión a imprimir.
+    ### Estructura
+    `Print` + **'('** + **Expresión o valor'** + **')'** + **;**
+
+- `Conditional()` : Este método se encarga de procesar las estructuras condicionales en el lenguaje. Primero, espera un token de tipo **L_PHARENTESYS** y luego obtiene la condición del condicional llamando al método `Layer_6()`. Después, espera un token de tipo **R_PHARENTESYS** y obtiene las operaciones a realizar si la condición es verdadera llamando al método `Global_Layer()`. Luego, espera un token de tipo **ELSE** y obtiene las operaciones a realizar si la condición es falsa llamando nuevamente al método `Global_Layer()`. Retorna un nodo de tipo _“Conditional”_ que contiene la condición y las operaciones a realizar si la condición es verdadera o falsa.
+    ### Estructura
+    `if` + **'('** + **condición (bool)** + **')'** + **Operación a realizar (si la condiciónn es Verdadera)** + `else` + **Operación a realizar (si la condición es falsa)** + **;**
+
+- `Function()` : Este método se encarga de procesar las funciones en el lenguaje. Primero, espera un token de tipo **VARIABLE** que será el nombre de la función. Luego, espera un token de tipo **L_PHARENTESYS** y obtiene los nombres de los parámetros de la función. Después, espera un token de tipo **R_PHARENTESYS** y otro de tipo **DO**, y obtiene las operaciones a realizar en la función llamando al método `Global_Layer()`. Retorna un nodo de tipo _“Function”_ que contiene el nombre de la función, los parámetros y las operaciones a realizar en la función.
+    ### Estructura
+    `function` + **'variable** + **'('** + **parametros de la funcion separados por coma**+**')'** + `=>` + **Operación a realizar** + **;**
+
+
+Estos métodos implementan la precedencia de operadores en tu lenguaje. Cada método **Layer_i** se encarga de una precedencia específica. Los operadores con mayor precedencia son procesados en métodos **Layer_i** con **i** más grande. Por ejemplo, `Layer_2()` se encarga de los operadores de multiplicación, división y módulo, que tienen mayor precedencia que los operadores de suma y resta manejados por `Layer_3()`. Cada método obtiene un nodo inicial y luego, mientras el token actual es uno de los operadores que maneja, crea nuevos nodos con esos operadores y los nodos obtenidos anteriormente.
+
+![Diagrama](./Layers_description.drawio.png)
+
+
+`Factor` se encarga de procesar los factores en el lenguaje. Un factor puede ser una expresión entre paréntesis, un número, un valor booleano (true o false), una cadena, una variable, una función declarada o una función trigonométrica (coseno o seno). Cada caso se maneja por separado.
+
+Estos métodos auxiliares se utilizan para manejar los errores en el analizador sintáctico. El método `Input_Error()` lanza una excepción con un mensaje de error. El método `Exceptions_Missing()` verifica si un nodo es de tipo _“error”_ y lanza una excepción en ese caso. El método `Expect()` verifica si el token actual es del tipo esperado y avanza a la siguiente posición en ese caso, o lanza una excepción si no lo es.
+
+#### _Acerca de los errores_:
+Los errores sintacticos de un interprete son aquellos que se producen cuando el código fuente de un programa no respeta las reglas gramaticales del lenguaje que esta interpretando.
+
+**- Errores de puntuacion:** Se producen cuando el interprete no encuentra algun signo de puntuacion requerido por la gramatica de alguna expresión, o por el contrario encuentra más de los que deberían.
+
+![Error sintáctico](./Syntactic_error1.png)
+
+**- Errores de estructura:** Se producen cuando el interprete no reconoce la forma o el orden de los elementos que componen las instrucciones.
+
+![Error sintáctico](./Syntactic_error2.png)
+
+
+
+## **`Semantic Analyzer`** (Analizador Semántico)
+
+`El analizador semántico` utilizara el **AST** y los símbolos correspondientes para comprobar si el programa cumple con las reglas semanticas del lenguaje.
+
+La clase Semantic_Analyzer se encarga del análisis semántico del lenguaje. Lee el **Árbol de Análisis Sintáctico Abstracto (AST)** generado por el **Parser** y realiza acciones en función del tipo de cada nodo. Las acciones pueden incluir la evaluación de nodos y la impresión de resultados.
+
+El método `Evaluate()` se encarga de evaluar un nodo en función de su tipo. Para cada tipo de nodo, realiza una operación específica. Por ejemplo, si el nodo es un número o una cadena, simplemente retorna su valor;si el nodo es una variable, busca su valor en el ámbito actual; si el nodo es una operación aritmética o booleana, evalúa los nodos hijos y realiza la operación correspondiente; si el nodo es una función coseno o seno, evalúa el nodo hijo y retorna el coseno o seno del resultado; si el nodo es un condicional, evalúa la condición y retorna la evaluación del primer o segundo nodo hijo dependiendo de si la condición es verdadera o falsa; si el nodo es una función, crea una nueva función y la añade a la lista de funciones declaradas. Y así sucesivamente para cada tipo de nodo.
+
+El método `Get_Var_Param()` se encarga de crear un diccionario para almacenar los parámetros de una función. 
+
+El método `Save_Var()` se encarga de guardar las variables del Let en el ámbito actual. Para cada asignación en la lista de asignaciones, evalúa el valor y añade la variable al ámbito actual. Si la variable ya existe en el ámbito actual, actualiza su valor. Si el nombre de la variable coincide con el nombre de una función existente, lanza una excepción
+
+El método `Call_Function()` se encarga de llamar a una función en el lenguaje. Busca la función en la lista de funciones declaradas y verifica que el número de parámetros coincida. Luego, añade todas las variables del ámbito anterior al ámbito actual y actualiza los valores de los parámetros en el ámbito actual. Si la función no se encuentra o el número de parámetros no coincide, lanza una excepción.
+
+Entre otros métodos auxiliares está el método `Function_Exist()` que verifica si una función existe en la lista de funciones declaradas; el método `Input_Error()` que lanza una excepción con un mensaje de error; el método `Type_Expected()` verifica si dos valores son del tipo esperado y lanza una excepción si no lo son y el método `Expected()` verifica si un valor es del tipo esperado y lanza una excepción si no lo es.
+
+#### _Acerca de los errores_:
+Los errores semánticos del interprete son aquellos que se lanzan cuando el codigo fuente de un programa cumple con la sintaxis correcta, pero no cumple con el significado de la logica del lenguaje que esta interpretando.
+
+**- Errores de tipo:** Se produce cuando no se respeta las reglas de compatibilidad, por ejemplo: comparar un string y un number, sumar un string y un number etc.
+
+![Error semántico](./Semantic_error1.png)
+
+**- Errores de nombres:** Se produce cuando el interprete no encuentra o no distingue los nombres que se usan para referirse a las variables, funciones etc.
+
+![Error semántico](./Semantic_error3.png)
+> Se ha definido la función Max() y se puede usar, al intentar llamar una función no declarada como Min() en este caso, da esta clase de error, pues no se encuentra su definición.
+
+**- Errores de funciones:** Se produce cuando no se respeta las reglas de definicion, la cantidad de parametros y de invocación.
+
+![Error semántico](./Semantic_error2.png)
+> La definicion de la funcion es correcta, sin embargo a la hora de llamar a la función la cantidad de parametros es incorrecta.
+
+## **`Clase Token`**
+Se utiliza para representar los Tokens en el interprete. Cada instancia de la clase representa un único token y almacena información relevante del mismo, como su Tipo (TokenType) y su valor.
+
+### Tipos de tokens
+```
+- TIPO DE DATOS
+    - NUMBER,
+    - STRING,
+    - BOOLEAN,
+
+- OPERADORES
+    - OPERATOR,
+    - EQUAL,
+    - DO,
+
+- PUNTUADORES
+    - L_PHARENTESYS,
+    - R_PHARENTESYS,
+    - PRINT,
+    - COMMA,
+    - D_COMMA,
+    - COMMILLAS,
+
+- Own Words
+    - LET,
+    - IN,
+    - IF,
+    - ELSE,
+    - TRUE,
+    - FALSE,
+    - FUNCTION,
+
+-  Reserved Word
+    - COS,
+    - SEN,
+    - LOG,
+- Other
+    - VARIABLE,
+    - EOF
 ```
 
-HULK además tiene expresiones aritméticas:
+## **`Clase Node`**
+Se utiliza para representar los Nodos en la representacion de un arbol. Cada instancia de la clase representa un único nodo y almacena información relevante del mismo, como su Tipo (Type), su valor (Value) y su lista de hijos (Childrens)
 
-```js
-print((((1 + 2) ^ 3) * 4) / 5);
+## **¿Qué es un `AST`?**
+El árbol de sintaxis abstracta (AST), o simplemente un árbol de sintaxis es una representación de árbol de la estructura sintáctica simplificada del código fuente escrito en cierto lenguaje de programación. Cada nodo del árbol denota una construcción que ocurre en el código fuente. La sintaxis es abstracta en el sentido que no representa cada detalle que aparezca en la sintaxis verdadera. Por ejemplo, el agrupamiento de los paréntesis está implícito en la estructura del árbol.
+
+## **¿Cómo usarlo?**
+Pues bien, ya entendida la teoría del funcionamiento de este interprete, vamos a la parte práctica, **¿Cómo usarlo?**.
+
+Por ahora es una aplicación de consola, por tanto debe:
+1) Abrir la carpeta donde se encuentra el proyecto
+2) Abrir Terminal / Consola y escribir el siguiente comando:
 ```
-
-Y funciones matemáticas básicas:
-
-```js
-print(sin(2 * PI) ^ 2 + cos(3 * PI / log(4, 64)));
+dotnet run
 ```
+3) Aqui ya puede empezar a escribir el codigo del Hulk
 
-> HULK soporta también expresiones multi-línea, pero esas no son requeridas en este proyecto.
-> HULK tiene tres tipos básicos: `string`, `number`, y `boolean`. Además en HULK se pueden definir tipos nuevos, pero en este proyecto no es requerido.
+### Un pequeño resumen de lo que puedes hacer
+- Imprimir en pantalla un texto o expresión
+- Hacer operaciones aritmeticas como: suma `'+'` , resta `'-'`, multplicacion `'*'`, división `'/'`, potenciación `'^'`, operaciones con espresiones booleanas `'&', '|'`, comparación`'==', '>=', '<=', '>', '<'`, concatenar strings `'@'`.
+- Hacer operaciones matematicas sencillas. Por ahora estan definidas: `seno (sin), coseno (cos), logaritmo(log)`.
+- Definir funciones respetando la estructura que se ha mostrado antes.
+- Definir variables respetando la estructura que se ha mostrado antes de igual forma
+- Usar condicionales `if-else` asimismo como en casos anteriores, respetando su estructura.
 
-### Funciones
-
-En HULK hay dos tipos de funciones, las funciones _inline_ y las funciones regulares. En este proyecto solo debe implementar las funciones _inline_. Tienen la siguiente forma:
-
-```js
-function tan(x) => sin(x) / cos(x);
-```
-
-Una vez definida una función, puede usarse en una expresión cualquiera:
-
-```js
-print(tan(PI/2));
-```
-
-El cuerpo de una función _inline_ es una expresión cualquiera, que por supuesto puede incluir otras funciones y expresiones básicas, o cualquier combinación.
-
-### Variables
-
-En HULK es posible declarar variables usando la expresión `let-in`, que funciona de la siguiente forma:
-
-```js
-let x = PI/2 in print(tan(x));
-```
-
-En general, una expresión `let-in` consta de una o más declaraciones de variables, y un cuerpo, que puede ser cualquier expresión donde además se pueden utilizar las variables declaradas en el `let`. 
-Fuera de una expresión `let-in` las variables dejan de existir.
-
-Por ejemplo, con dos variables:
-
-```js
-let number = 42, text = "The meaning of life is" in print(text @ number);
-```
-
-Que es equivalente a:
-
-```js
-let number = 42 in (let text = "The meaning of life is" in (print(text @ number)));
-```
-
-El valor de retorno de una expresión `let-in` es el valor de retorno del cuerpo, por lo que es posible hacer:
-
-```js
-print(7 + (let x = 2 in x * x));
-```
-
-Que da como resultado `11`.
-
-> La expresión `let-in` permite hacer mucho más, pero para este proyecto usted solo necesita implementar las funcionalidades anteriores.
-
-### Condicionales
-
-Las condiciones en HULK se implementan con la expresión `if-else`, que recibe una expresión booleana entre paréntesis, y dos expresiones para el cuerpo del `if` y el `else` respectivamente.
-Siempre deben incluirse ambas partes:
-
-```js
-let a = 42 in if (a % 2 == 0) print("Even") else print("odd");
-```
-
-Como `if-else` es una expresión, se puede usar dentro de otra expresión (al estilo del operador ternario en C#):
-
-```js
-let a = 42 in print(if (a % 2 == 0) "even" else "odd");
-```
-
-> En HULK hay expresiones condicionales con más de una condición, usando `elif`, pero para este proyecto usted no tiene que implementarlas.
-
-### Recursión
-
-Dado que HULK tiene funciones compuestas, por definición tiene también soporte para recursión. Un ejemplo de una función recursiva en HULK es la siguiente:
-
-```js
-function fib(n) => if (n > 1) fib(n-1) + fib(n-2) else 1;
-```
-
-Usted debe garantizar que su implementación permite este tipo de definiciones recursivas.
-
-## El intérprete
-
-Su intérprete de HULK será una aplicación de consola, donde el usuario puede introducir una expresión de HULK, presionar ENTER, e immediatamente se verá el resultado de evaluar expresión (si lo hubiere)
-Este es un ejemplo de una posible interacción:
-
-```js
-> let x = 42 in print(x);
-42
-> function fib(n) => if (n > 1) fib(n-1) + fib(n-2) else 1;
-> fib(5)
-13
-> let x = 3 in fib(x+1);
-8
-> print(fib(6));
-21
-```
-
-Cada línea que comienza con `>` representa una entrada del usuario, e immediatamente después se imprime el resultado de evaluar esa expresión, si lo hubiere.
-
-> Note que cuando una expresión tiene valor de retorno (como en el caso de un llamado a una función), directamente se imprime el valor retornado, aunque no haya una instrucción `print`.
-
-Todas las funciones declaradas anteriormente son visibles en cualquier expresión subsiguiente. Las funciones no pueden redefinirse.
-
-### Errores
-
-En HULK hay 3 tipos de errores que usted debe detectar. En caso de detectarse un error, el intérprete debe imprimir una línea indicando el error que sea lo más informativa posible.
-
-#### Error léxico
-
-Errores que se producen por la presencia de tokens inválidos. Por ejemplo:
-
-```js
-> let 14a = 5 in print(14a); 
-! LEXICAL ERROR: `14a` is not valid token.
-```
-
-#### Error sintático
-
-Errores que se producen por expresiones mal formadas como paréntesis no balanceados o expresiones incompletas. Por ejemplo:
-
-```js
-> let a = 5 in print(a;
-! SYNTAX ERROR: Missing closing parenthesis after `a`.
-> let a = 5 inn print(a);
-! SYNTAX ERROR: Invalid token `inn` in `let-in` expression.
-> let a = in print(a);
-! SYNTAX ERROR: Missing expression in `let-in` after variable `a`.
-```
-
-### Error semántico
-
-Errores que se producen por el uso incorrecto de los tipos y argumentos. Por ejemplo:
-
-```js
-> let a = "hello world" in print(a + 5);
-! SEMANTIC ERROR: Operator `+` cannot be used between `string` and `number`.
-> print(fib("hello world"));
-! SEMANTIC ERROR: Function `fib` receives `number`, not `string`.
-> print(fib(4,3));
-! SEMANTIC ERROR: Function `fib` receives 1 argument(s), but 2 were given.
-```
-
-En caso de haber más de un error, usted debe detectar solamente **uno** de los errores.
-
-## Detalles de implementación
-
-Este proyecto es fundamentalmente para implementar una jerarquía de tipos conveniente que represente el lenguaje HULK (o al menos el subconjunto de lenguaje que usted debe soportar).
-Usted deberá tener un conjunto de clases que representen los tipos de expresiones e instrucciones, así como otro conjunto de clases que representen los procesos y conceptos más importantes de su intérprete. 
-
-Para ello, su solución debe consistir al menos en dos proyectos en el lenguaje C#, usando .NET Core 7 o superior:
-
-- Una biblioteca de clases donde se implementa toda la lógica de parsing y evaluación del lenguaje HULK. En esta biblioteca no puede utilizar ninguna herramienta externa, más allá de la biblioteca estándar de .NET Core.
-- Una aplicación de consola (o cualquier otra tecnología de visualización) donde se implementa la parte interactiva del intérprete.
-
-En este proyecto **no es necesario** tener conocimientos avanzados de compilación, pues se ha definido un subconjunto de HULK que es posible resolver de manera directa. 
-Sin embargo, usted puede utilizar cualquier algoritmo o técnica de compilación que desee, siempre que sea capaz de implementarla desde cero y explicar su funcionamiento.
-
-Un consejo que sí podemos darle es estudiar el concepto de **parsing recursivo descendente** que le simplificará notablemente la tarea de interpretar el lenguaje HULK.
+### Herramientas para la realización de este informe:
+----
+- Markdown
+- https://app.diagrams.net/ (para elaborar los diagramas)

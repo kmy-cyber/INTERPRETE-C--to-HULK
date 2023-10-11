@@ -11,19 +11,35 @@ namespace INTERPRETE_C__to_HULK
 {
     public class Parser
     {
+        /// <summary>
+        /// Lista de tokens
+        /// </summary>
         List<Token> TS;
+        ///<summary>
+        /// Posicion actual en la lista de tokens
+        /// </summary>
         int position;
-
+        ///<summary>
+        /// Diccionario de las variables
+        /// </summary>
         public Dictionary<string,dynamic> Variables;
 
+        /// <summary>
+        /// Constructor de la clase Parser
+        /// </summary>
         public Parser(List<Token>Tokens_Sequency)
         {
-            position = 0;
-            TS = Tokens_Sequency;
-            Variables = new Dictionary<string, dynamic>();
-
+            position = 0; //inicializa la posicion a 0
+            TS = Tokens_Sequency; // Almacena la secuencia de Tokens
+            Variables = new Dictionary<string, dynamic>(); // Inicializa el diccionario de variables
         }
 
+        /// <summary>
+        /// Método Parse que genera el árbol de análisis sintáctico
+        /// </summary>
+        /// <returns>
+        /// Arbol de sintaxis AST
+        /// </returns>
         public Node Parse()
         {
             Node Tree =  Global_Layer();
@@ -31,6 +47,9 @@ namespace INTERPRETE_C__to_HULK
             return Tree;
         }
         
+        /// <summary>
+        /// Método Global_Layer que decide qué acción tomar en función del token actual
+        /// </summary>
         public Node Global_Layer()
         {
             if( position < TS.Count && Convert.ToString(TS[position].Value) == "print" )
@@ -56,7 +75,9 @@ namespace INTERPRETE_C__to_HULK
             return Layer_6(); 
         }
 
-    	
+    	/// <summary>
+        /// Este método se encarga de procesar las asignaciones de variables del lenguaje (LET-IN)
+        /// </summary>
         public Node Assigment()
         {
             position++;
@@ -89,6 +110,9 @@ namespace INTERPRETE_C__to_HULK
             return variable;
         }
 
+        /// <summary>
+        /// Este método se encarga de procesar las impresiones del lenguaje (PRINT)
+        /// </summary>
         public Node Showing()
         {
             position++;
@@ -99,6 +123,9 @@ namespace INTERPRETE_C__to_HULK
             return new Node {Type = "print", Children = new List<Node>{expression}};
         }
 
+        /// <summary>
+        /// Este método se encarga de procesar las estructuras condicionales del lenguaje (IF-ELSE)
+        /// </summary>
         public Node Conditional()
         {
             position++;
@@ -112,6 +139,9 @@ namespace INTERPRETE_C__to_HULK
             return conditional_if_else;
         }
 
+        /// <summary>
+        /// Este método se encarga de procesar la declaracion de funciones del lenguaje (FUNCTION)
+        /// </summary>
         public Node Function()
         {
             position++;
@@ -141,8 +171,11 @@ namespace INTERPRETE_C__to_HULK
             return function; 
         }
 
-        #region CAPAS
+        #region CAPAS // Estos métodos implementan la precedencia de operadores del lenguaje
 
+            /// <summary>
+            /// CAPA 6 (Operador '@' de concatenacion)
+            /// </summary>
             public Node Layer_6()
             {
                 Node node = Layer_5();
@@ -156,6 +189,9 @@ namespace INTERPRETE_C__to_HULK
                 return node;
             }
 
+            /// <summary>
+            /// CAPA 5 Operadores ('&' '|')
+            /// </summary>
             public Node Layer_5()
             {
                 Node node = Layer_4();
@@ -168,6 +204,10 @@ namespace INTERPRETE_C__to_HULK
                 }
                 return node;
             }
+
+            /// <summary>
+            /// CAPA 4 (Operadores '>' '<' '==' '!=' '>=' '<=' de comparacion)
+            /// </summary>
             public Node Layer_4()
             {
                 Node node = Layer_3();
@@ -181,6 +221,9 @@ namespace INTERPRETE_C__to_HULK
                 return node;
             }
 
+            /// <summary>
+            /// CAPA 3 (Operadores '+' suma y  '-' resta)
+            /// </summary>
             public Node Layer_3()
             {
                 Node node = Layer_2();
@@ -195,6 +238,9 @@ namespace INTERPRETE_C__to_HULK
 
             }
 
+            /// <summary>
+            /// CAPA 2 (Operadores de '*' multiplicacion y '/' division)
+            /// </summary>
             public Node Layer_2()
             {
                 Node node = Layer_1();
@@ -209,6 +255,9 @@ namespace INTERPRETE_C__to_HULK
                 return node;
             }
 
+            /// <summary>
+            /// CAPA 1 (Operador '^' Potencia)
+            /// </summary>
             public Node Layer_1()
             {
                 Node node = Factor();
@@ -222,13 +271,17 @@ namespace INTERPRETE_C__to_HULK
                 return node;
             }
 
-
+            /// <summary>
+            /// CAPA 0 o CAPA FACTOR 
+            /// </summary>
             public Node Factor ()
             {
-                Token current_token= TS[position];
+                Token current_token= TS[position]; // Obtiene el token actual
                 if (position >= TS.Count)
                     throw new Exception("Unexpected end of input");
-                if(current_token.Type == TokenType.L_PHARENTESYS)
+
+                // Si el token actual es un paréntesis izquierdo, procesa una expresión entre paréntesis
+                if(current_token.Type == TokenType.L_PHARENTESYS) 
                 {
                     position++;
                     Node node = Global_Layer();
@@ -240,33 +293,38 @@ namespace INTERPRETE_C__to_HULK
                     return node;
                 }
 
+                //Si el token actual es un número, retorna un nodo de tipo "number" con el valor del número
                 else if( TS[position].Type == TokenType.NUMBER )
                 {
                     dynamic value = Convert.ToDouble(TS[position++].Value);
                     return new Node { Type = "number", Value = value };
                 }
 
+                //Si el token actual es "true", retorna un nodo de tipo "true" con el valor true
                 else if( TS[position].Type == TokenType.TRUE)
                 {
-                    dynamic value = Convert.ToDouble(TS[position++].Value);
+                    dynamic value = TS[position++].Value;
                     return new Node { Type = "true", Value = value };
                 }
 
+                // Si el token actual es "false", retorna un nodo de tipo "false" con el valor false
                 else if( TS[position].Type == TokenType.FALSE )
                 {
-                    dynamic value = Convert.ToDouble(TS[position++].Value);
+                    dynamic value = TS[position++].Value;
                     return new Node { Type = "false", Value = value };
                 }
 
+                // Si el token actual es una cadena, retorna un nodo de tipo "string" con el valor de la cadena
                 else if( TS[position].Type == TokenType.STRING )
                 {
                     dynamic? value = Convert.ToString(TS[position++].Value);
                     return new Node { Type = "string", Value = value};
                 }
 
+                // Si el token actual es una variable, procesa una variable o una función declarada
                 else if( TS[position].Type == TokenType.VARIABLE)
                 {
-                    if(TS[position+1].Type == TokenType.L_PHARENTESYS)
+                    if(TS[position+1].Type == TokenType.L_PHARENTESYS) // si el token siguiente es parentesis procesar como funcion declarada
                     {
                         dynamic? f_name = Convert.ToString(TS[position++].Value);
                         position++;
@@ -290,11 +348,12 @@ namespace INTERPRETE_C__to_HULK
                         return new Node { Type = "declared_function", Children = new List<Node> {name,param}};
 
                     }
-
+                    // procesar como variable
                     dynamic? value = Convert.ToString(TS[position++].Value);
                     return new Node { Type = "variable", Value = value};
                 }
 
+                // Si el token actual es "cos", procesa una función coseno
                 else if(TS[position].Type == TokenType.COS)
                 {
                     position++;
@@ -304,6 +363,7 @@ namespace INTERPRETE_C__to_HULK
                     return new Node {Type = "cos", Children = new List<Node>{valor}};
                 }
 
+                // Si el token actual es "sen", procesa una función seno
                 else if(TS[position].Type == TokenType.SEN)
                 {
                     position++;
@@ -313,6 +373,7 @@ namespace INTERPRETE_C__to_HULK
                     return new Node {Type = "sin", Children = new List<Node>{valor}};
                 }
 
+                // Si el token actual es "log", procesa una función logaritmo
                 else if(TS[position].Type == TokenType.LOG)
                 {
                     position++;
@@ -324,19 +385,21 @@ namespace INTERPRETE_C__to_HULK
                     return new Node {Type = "log", Children = new List<Node>{valor,valor2}};
                 }
                  
+                // Si el token actual es "let", procesa una asignacion
                 else if( position < TS.Count && Convert.ToString(TS[position].Value) == "let" )
                 {
                     return Assigment();
                 }
 
+                // Si el token actual es nulo, retorna un nodo vacío
                 else if(TS[position] == null)
                 {
                     return new Node{};
                 }
 
+                // Si el token actual no coincide con ninguno de los anteriores, retorna un nodo de error
                 else
                 {
-                    //Input_Error("its not a number ,')' or a string" );
                     return new Node{Type="error",Value=0};
                 }
             }
@@ -344,11 +407,17 @@ namespace INTERPRETE_C__to_HULK
 
         #region Auxiliar
 
+            /// <summary>
+            /// Método que lanza una excepción con un mensaje de error de sintaxis
+            /// </summary>
             private void Input_Error(string error)
             {
                 throw new Exception("SYNTAX ERROR: " + error);
             }
 
+            /// <summary>
+            ///  Método que verifica si un nodo es de tipo "error" y lanza una excepción en ese caso
+            /// </summary>
             private void Exceptions_Missing(Node node, string op)
             {
                 if(node.Type == "error")
@@ -365,6 +434,9 @@ namespace INTERPRETE_C__to_HULK
                 }
             }
 
+            /// <summary>
+            /// Método que verifica si el token actual es del tipo esperado y avanza a la siguiente posición en ese caso, o lanza una excepción si no lo es
+            /// </summary>
             public void Expect(TokenType tokenType, object value)
             {
                 if(TS[position].Type == tokenType)
