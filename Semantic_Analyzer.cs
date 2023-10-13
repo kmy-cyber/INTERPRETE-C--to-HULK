@@ -130,8 +130,12 @@ namespace INTERPRETE_C__to_HULK
                     return left_u % right_u;
 
                 //? Boolean operations
-                // Si el nodo es una operación booleana (>, <, >=, <=, ==, !=), 
+                // Si el nodo es una operación booleana (>, <, >=, <=, ==, !=, !), 
                 //evalúa los nodos hijos y realiza la operación correspondiente
+                case "!":
+                    dynamic ?not = Evaluate(node.Children[0]);
+                    Expected(not,"boolean","! not"); 
+                    return !not;
                 case ">":
                     dynamic ?left_a = Evaluate(node.Children[0]);
                     dynamic ?right_a = Evaluate(node.Children[1]);
@@ -155,12 +159,19 @@ namespace INTERPRETE_C__to_HULK
                 case "==":
                     dynamic ?left_g = Evaluate(node.Children[0]);
                     dynamic ?right_g = Evaluate(node.Children[1]);
-                    Type_Expected(right_g,left_g,"number","==");
+                    if(Identify(left_g ) != Identify(right_g))
+                    {
+                        Input_Error($"Operator '==' can not be used between values of diferent types");
+                    }
                     return left_g == right_g;
+                    
                 case "!=":
                     dynamic ?left_h = Evaluate(node.Children[0]);
                     dynamic ?right_h = Evaluate(node.Children[1]);
-                    Type_Expected(right_h,left_h,"number","!=");
+                    if(Identify(left_h ) != Identify(right_h))
+                    {
+                        Input_Error($"Operator '!=' can not be used between values of diferent types");
+                    }
                     return left_h != right_h;
                 case "@":
                     dynamic ?left_st = Evaluate(node.Children[0]);
@@ -194,10 +205,10 @@ namespace INTERPRETE_C__to_HULK
                 // Si el nodo es una función coseno o seno, evalúa el nodo hijo y retorna el coseno o seno del resultado
                 case "cos":
                     dynamic? value_cos = Evaluate(node.Children[0]);
-                    return Math.Cos(value_cos);
+                    return Math.Cos(value_cos * (Math.PI/180));//convirtiendo 
                 case "sin":
                     dynamic? value_sin = Evaluate(node.Children[0]);
-                    return Math.Sin(value_sin);
+                    return Math.Sin(value_sin* (Math.PI/180));//convirtiendo
                 // Si el nodo es una función logaritmo, evalúa los nodos hijos y retorna el logaritmo del segundo resultado 
                 //en base al primer resultado  
                 case "log":
@@ -297,18 +308,23 @@ namespace INTERPRETE_C__to_HULK
             {
                 string ?name = Child.Children[0].Value;
                 dynamic ?value = Evaluate(Child.Children[1]);
-                // Si la variable ya existe en el diccionario, actualiza su valor
-                if(Var_let_in.ContainsKey(name))
-                {
-                    Var_let_in[name] = value;
-                }
+
                 // Si el nombre de la variable coincide con el nombre de una función existente, lanza una excepción
                 if(Function_Exist(name))
                 {
                     Input_Error ("The variable "+ name +" already has a definition as a function in the current context");
                 }
-                // Añade la variable al diccionario
-                Var_let_in.Add(name, value);
+
+                // Si la variable ya existe en el diccionario, actualiza su valor
+                if(Var_let_in.ContainsKey(name))
+                {
+                    Var_let_in[name] = value;
+                }
+
+                else
+                {
+                    Var_let_in.Add(name, value);
+                }
             }
             // Añade el nuevo diccionario de variables al ámbito actual
             Scopes.Add(Var_let_in);
@@ -420,7 +436,7 @@ namespace INTERPRETE_C__to_HULK
             // Si los valores no son del tipo esperado, lanza una excepción
             else
             {
-                Input_Error("Operator \'"+ op+"\' cannot be used between \'" + value1 +"\' and \'"+ value2 +"\'");
+                Input_Error("Operator \'"+ op+"\' cannot be used between \'" + Identify(value1) +"\' and \'"+ Identify(value2) +"\'");
             }
         }
 
@@ -429,25 +445,39 @@ namespace INTERPRETE_C__to_HULK
         /// </summary>
         private void Expected(dynamic value1, string type, string express)
         {
-            switch(type)
-            {
-                case "string":
-                    if(value1 is string)
-                        return;
-                    break;
-                case "number":
-                    if(value1 is double)
-                        return;
-                    break;
-                case "boolean":
-                    if(value1 is bool)
-                        return;
-                    break;
-                default:
-                    Input_Error("The \'"+ express +"\' expression must receive type \'" + value1 +"\'");
-                    break;
-            }
+            string v1_type = Identify(value1);
+
+            if(v1_type == type) return;
+
+            //switch(type)
+            //{
+            //    case "string":
+            //        if(value1 is string)
+            //            return;
+            //        break;
+            //    case "number":
+            //        if(value1 is double)
+            //            return;
+            //        break;
+            //    case "boolean":
+            //        if(value1 is bool)
+            //            return;
+            //        break;
+            //    default:
+            //        Input_Error("The \'"+ express +"\' expression must receive type \'" + value1 +"\'");
+            //        break;
+            //}
+
+            Input_Error("The \'"+ express +"\' expression must receive type \'" + type +"\'");
            
+        }
+
+        private string Identify(dynamic value)
+        {
+            if(value is string) return "string";
+            if(value is double) return "number";
+            if(value is bool) return "bool";
+            return "Unknown";
         }
         
     }

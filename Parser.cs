@@ -292,6 +292,15 @@ namespace INTERPRETE_C__to_HULK
                     position++;
                     return node;
                 }
+                
+                // si el token es !
+                if(current_token.Value.ToString() == "!")
+                {
+                    string? op = Convert.ToString(TS[position++].Value);
+                    Node n = Global_Layer();
+                    return new Node {Type = op, Children = new List<Node>{n}};
+                    
+                }
 
                 //Si el token actual es un número, retorna un nodo de tipo "number" con el valor del número
                 else if( TS[position].Type == TokenType.NUMBER )

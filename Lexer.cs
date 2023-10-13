@@ -254,7 +254,7 @@ namespace INTERPRETE_C__to_HULK
                 case "true":
                     return new Token(TokenType.TRUE,"true");
                 case "false":
-                    return new Token(TokenType.TRUE,"false");
+                    return new Token(TokenType.FALSE,"false");
                 case "cos":
                     return new Token(TokenType.COS,"cos");
                 case "sin":
