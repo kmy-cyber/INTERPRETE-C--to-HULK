@@ -58,8 +58,8 @@ namespace INTERPRETE_C__to_HULK
             switch (node.Type)
             {
                 // Si el nodo es una función declarada, evalúa el nodo y muestra el resultado
-                case "declared_function":
-                    Console.WriteLine(Evaluate(node));
+                case "print":
+                    Console.WriteLine(Evaluate(node.Children[0]));
                     break; 
                 // Para cualquier otro tipo de nodo, simplemente evalúa el nodo 
                 default:
@@ -476,7 +476,7 @@ namespace INTERPRETE_C__to_HULK
         {
             if(value is string) return "string";
             if(value is double) return "number";
-            if(value is bool) return "bool";
+            if(value is bool) return "boolean";
             return "Unknown";
         }
         

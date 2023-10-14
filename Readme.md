@@ -192,7 +192,7 @@ dotnet run
 
 ### Un pequeño resumen de lo que puedes hacer
 - Imprimir en pantalla un texto o expresión usando la [ estructura ](#estructura) .
-- Hacer operaciones aritmeticas como: suma `'+'` , resta `'-'`, multplicacion `'*'`, división `'/'`, módulo `'%'`, potenciación `'^'`, operaciones con espresiones booleanas `'&', '|'`, comparación`'==', '>=', '<=', '>', '<'`, concatenar strings `'@'`.
+- Hacer operaciones aritmeticas como: suma `'+'` , resta `'-'`, multplicacion `'*'`, división `'/'`, módulo `'%'`, potenciación `'^'`, operaciones con espresiones booleanas `'&', '|'`, comparación`'==', '>=', '<=', '>', '<'`, `'!='`,`'!'`, concatenar strings `'@'`.
 - Hacer operaciones matematicas sencillas. Por ahora estan definidas: `seno (sin), coseno (cos), logaritmo(log)`.
 - Definir funciones respetando la [ estructura ](#estructura-2) que se ha mostrado antes. 
 - Definir variables respetando la [ estructura ](#estructura-3) que se ha mostrado antes de igual forma.
