@@ -14,7 +14,7 @@
 
 ### Diagrama del flujo de datos:
 
-![Diagrama de flujo de datos](./D_F_1.drawio.png)
+![Diagrama de flujo de datos](./photos/D_F_1.drawio.png)
 
 ### [ Leyenda ]
 
@@ -47,7 +47,7 @@ La clase Lexer tiene un método llamado `Get_Sequency()`, que toma una cadena de
 Los posibles errores lexicos de un interprete son aquellos que se producen cuando en interprete no reconoce o no procesa correctamente los simbolos o las palabras que forman parte del lenguaje que esta interpretando.
 Por ejemplo: 
 
-![Diagrama de flujo de datos](./Lexical_error.png)
+![Diagrama de flujo de datos](./photos/Lexical_error.png)
 
 
 
@@ -76,7 +76,7 @@ La clase Parser que toma una secuencia de tokens y construye un árbol de análi
 
 Estos métodos implementan la precedencia de operadores en tu lenguaje. Cada método **Layer_i** se encarga de una precedencia específica. Los operadores con mayor precedencia son procesados en métodos **Layer_i** con **i** más grande. Por ejemplo, `Layer_2()` se encarga de los operadores de multiplicación, división y módulo, que tienen mayor precedencia que los operadores de suma y resta manejados por `Layer_3()`. Cada método obtiene un nodo inicial y luego, mientras el token actual es uno de los operadores que maneja, crea nuevos nodos con esos operadores y los nodos obtenidos anteriormente.
 
-![Diagrama](./Layers_description_parser.png)
+![Diagrama](./photos/Layers_description_parser.png)
 >Nota: en el Layer 4 se incluye el operador ! y solo puede preceder a una expresion booleana
 
 `Factor` se encarga de procesar los factores en el lenguaje. Un factor puede ser una expresión entre paréntesis, un número, un valor booleano (true o false), una cadena, una variable, una función declarada o una función trigonométrica (coseno o seno). Cada caso se maneja por separado.
@@ -88,11 +88,11 @@ Los errores sintacticos de un interprete son aquellos que se producen cuando el 
 
 **- Errores de puntuacion:** Se producen cuando el interprete no encuentra algun signo de puntuacion requerido por la gramatica de alguna expresión, o por el contrario encuentra más de los que deberían.
 
-![Error sintáctico](./Syntactic_error1.png)
+![Error sintáctico](./photos/Syntactic_error1.png)
 
 **- Errores de estructura:** Se producen cuando el interprete no reconoce la forma o el orden de los elementos que componen las instrucciones.
 
-![Error sintáctico](./Syntactic_error2.png)
+![Error sintáctico](./photos/Syntactic_error2.png)
 
 
 
@@ -117,16 +117,16 @@ Los errores semánticos del interprete son aquellos que se lanzan cuando el codi
 
 **- Errores de tipo:** Se produce cuando no se respeta las reglas de compatibilidad, por ejemplo: comparar un string y un number, sumar un string y un number etc.
 
-![Error semántico](./Semantic_error1.png)
+![Error semántico](./photos/Semantic_error1.png)
 
 **- Errores de nombres:** Se produce cuando el interprete no encuentra o no distingue los nombres que se usan para referirse a las variables, funciones etc.
 
-![Error semántico](./Semantic_error3.png)
+![Error semántico](./photos/Semantic_error3.png)
 > Se ha definido la función Max() y se puede usar, al intentar llamar una función no declarada como Min() en este caso, da esta clase de error, pues no se encuentra su definición.
 
 **- Errores de funciones:** Se produce cuando no se respeta las reglas de definicion, la cantidad de parametros y de invocación.
 
-![Error semántico](./Semantic_error2.png)
+![Error semántico](./photos/Semantic_error2.png)
 > La definicion de la funcion es correcta, sin embargo a la hora de llamar a la función la cantidad de parametros es incorrecta.
 
 ## **`Clase Token`**
