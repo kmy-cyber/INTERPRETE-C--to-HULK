@@ -191,8 +191,8 @@ dotnet run
 3) Aqui ya puede empezar a escribir el codigo del Hulk
 
 ### Un pequeño resumen de lo que puedes hacer
-- Imprimir en pantalla un texto o expresión usando la [ estructura ](#estructura) .
-- Hacer operaciones aritmeticas como: suma `'+'` , resta `'-'`, multplicacion `'*'`, división `'/'`, módulo `'%'`, potenciación `'^'`, operaciones con espresiones booleanas `'&', '|'`, comparación`'==', '>=', '<=', '>', '<'`, `'!='`,`'!'`, concatenar strings `'@'`.
+- Imprimir en pantalla un texto o expresión usando la [ estructura ](#estructura).Solo se imprime si se usa la funcion Print.
+- Hacer operaciones aritmeticas como: suma `'+'` , resta `'-'`, multplicacion `'*'`, división `'/'`, módulo `'%'`, potenciación `'^'`, operaciones con espresiones booleanas `'&', '|'`, comparación`'==', '>=', '<=', '>', '<'`, `'!='`,`'!'`, concatenar strings y numeros con strings `'@'`.
 - Hacer operaciones matematicas sencillas. Por ahora estan definidas: `seno (sin), coseno (cos), logaritmo(log)`.
 - Definir funciones respetando la [ estructura ](#estructura-2) que se ha mostrado antes. 
 - Definir variables respetando la [ estructura ](#estructura-3) que se ha mostrado antes de igual forma.

@@ -19,7 +19,7 @@ namespace INTERPRETE_C__to_HULK
     {
         Node AST; // Árbol de Análisis Sintáctico Abstracto (AST)
 
-        Dictionary<string,dynamic> variables_globales; // Diccionario para almacenar las variables globales
+        Dictionary<string,object> variables_globales; // Diccionario para almacenar las variables globales
         
         public List<Function_B> functions_declared = new List<Function_B>(); // Lista para almacenar las funciones declaradas
         
@@ -31,7 +31,7 @@ namespace INTERPRETE_C__to_HULK
         public Semantic_Analyzer()
         {
             // Inicializa el diccionario de variables globales con algunas variables predefinidas
-            variables_globales = new Dictionary<string,dynamic>
+            variables_globales = new Dictionary<string,object>
             {
                 {"PI",Math.PI},
                 {"TAU",Math.Pow(Math.PI,2)},
@@ -47,7 +47,7 @@ namespace INTERPRETE_C__to_HULK
         public void Read_Parser(Node n)
         {
             AST = n;
-            Scopes = new List<Dictionary<string,dynamic>>{variables_globales};
+            Scopes = new List<Dictionary<string,object>>{variables_globales};
         }
 
         /// <summary>
@@ -71,7 +71,7 @@ namespace INTERPRETE_C__to_HULK
         /// <summary>
         /// Metodo para Evaluar los Nodos
         /// </summary>
-        public dynamic? Evaluate(Node node)
+        public object? Evaluate(Node node)
         {
             // Dependiendo del tipo de nodo, realiza diferentes operaciones
             switch (node.Type)
@@ -90,7 +90,7 @@ namespace INTERPRETE_C__to_HULK
                     return false;
                 // Si el nodo es una variable, retorna su valor del ámbito actual
                 case "variable":
-                    return Scopes[Scopes.Count - 1][node.Value];
+                    return Scopes[Scopes.Count - 1][node.Value.ToString()];
                 // Si el nodo es el nombre de una función declarada, retorna su valor
                 case "d_function_name":
                     return node.Value;
@@ -98,96 +98,97 @@ namespace INTERPRETE_C__to_HULK
                 //? Operaciones arirmeticas 
                 // Si el nodo es una operación de suma, resta, multiplicación, división, 
                 //exponente o módulo, evalúa los nodos hijos y realiza la operación correspondiente
-                case "+":
-                    dynamic ?left_s = Evaluate(node.Children[0]);
-                    dynamic ?right_s = Evaluate(node.Children[1]);
-                    Type_Expected(right_s,left_s,"number","+");
-                    return left_s + right_s;
-                case "-":
-                    dynamic ?left_r = Evaluate(node.Children[0]);
-                    dynamic ?right_r = Evaluate(node.Children[1]);
-                    Type_Expected(right_r,left_r,"number","-");
-                    return left_r - right_r;
-                case "*":
-                    dynamic ?left_m = Evaluate(node.Children[0]);
-                    dynamic ?right_m = Evaluate(node.Children[1]);
-                    Type_Expected(right_m,left_m,"number","*");
-                    return left_m * right_m;
-                case "/":
-                    dynamic ?left_d = Evaluate(node.Children[0]);
-                    dynamic ?right_d = Evaluate(node.Children[1]);
-                    Type_Expected(right_d,left_d,"number","/");
-                    return left_d / right_d;
-                case "^":
-                    dynamic ?left_p = Evaluate(node.Children[0]);
-                    dynamic ?right_p = Evaluate(node.Children[1]);
-                    Type_Expected(right_p,left_p,"number","^");
-                    return Math.Pow(left_p,right_p);
-                case "%":
-                    dynamic ?left_u = Evaluate(node.Children[0]);
-                    dynamic ?right_u = Evaluate(node.Children[1]);
-                    Type_Expected(right_u,left_u,"number","%");
-                    return left_u % right_u;
+
+                case "+" : case "-": case "*": case "/": case "^": case "%":
+                    object ?left_a = Evaluate(node.Children[0]);
+                    object ?right_a = Evaluate(node.Children[1]);
+                    Type_Expected(right_a,left_a,"number","+");
+                    switch(node.Type)
+                    {
+                        case "+": return (double)left_a + (double)right_a;
+                        case "-": return (double)left_a - (double)right_a;
+                        case "*": return (double)left_a * (double)right_a;
+                        case "/": return (double)left_a / (double)right_a;
+                        case "%": return (double)left_a % (double)right_a;
+                        case "^": return Math.Pow((double)left_a, (double)right_a);;
+                        default: return (double)left_a + (double)right_a;
+                    }
+                    
 
                 //? Boolean operations
                 // Si el nodo es una operación booleana (>, <, >=, <=, ==, !=, !), 
                 //evalúa los nodos hijos y realiza la operación correspondiente
                 case "!":
-                    dynamic ?not = Evaluate(node.Children[0]);
+                    object ?not = Evaluate(node.Children[0]);
                     Expected(not,"boolean","! not"); 
-                    return !not;
-                case ">":
-                    dynamic ?left_a = Evaluate(node.Children[0]);
-                    dynamic ?right_a = Evaluate(node.Children[1]);
-                    Type_Expected(right_a,left_a,"number",">");
-                    return left_a > right_a;
-                case "<":
-                    dynamic ?left_b = Evaluate(node.Children[0]);
-                    dynamic ?right_b = Evaluate(node.Children[1]);
-                    Type_Expected(right_b,left_b,"number","<");
-                    return left_b < right_b;
-                case ">=":
-                    dynamic ?left_e = Evaluate(node.Children[0]);
-                    dynamic ?right_e = Evaluate(node.Children[1]);
-                    Type_Expected(right_e,left_e,"number",">=");
-                    return left_e >= right_e;
-                case "<=":
-                    dynamic ?left_f = Evaluate(node.Children[0]);
-                    dynamic ?right_f = Evaluate(node.Children[1]);
-                    Type_Expected(right_f,left_f,"number","<=");
-                    return left_f <= right_f;
-                case "==":
-                    dynamic ?left_g = Evaluate(node.Children[0]);
-                    dynamic ?right_g = Evaluate(node.Children[1]);
-                    if(Identify(left_g ) != Identify(right_g))
+                    return !(bool)not;
+                case ">" : case "<": case ">=": case "<=": case "==": case "!=":
+                    object ?left_b = Evaluate(node.Children[0]);
+                    object ?right_b = Evaluate(node.Children[1]);
+                    switch(node.Type)
                     {
-                        Input_Error($"Operator '==' can not be used between values of diferent types");
+                        case ">": return (double)left_b > (double)right_b;
+                        case "<": return (double)left_b < (double)right_b;
+                        case ">=": return (double)left_b >= (double)right_b;
+                        case "<=": return (double)left_b <= (double)right_b;
+                        case "==":
+                            if(left_b is double && right_b is double)
+                            {
+                                return (double)left_b == (double)right_b;
+                            }
+                            else if(left_b is string && right_b is string)
+                            {
+                                return (string)left_b == (string)right_b;
+                            }
+                            else if(left_b is bool && right_b is bool )
+                            {
+                                return (bool)left_b == (bool)right_b;
+                            }
+                            else
+                            {
+                                Input_Error($"Operator '==' can not be used between values of diferent types");
+                            }
+                            break;
+                        default:
+                            if(left_b is double && right_b is double)
+                            {
+                                return (double)left_b != (double)right_b;
+                            }
+                            else if(left_b is string && right_b is string)
+                            {
+                                return (string)left_b != (string)right_b;
+                            }
+                            else if(left_b is bool && right_b is bool )
+                            {
+                                return (bool)left_b != (bool)right_b;
+                            }
+                            else
+                            {
+                                Input_Error($"Operator '==' can not be used between values of diferent types");
+                            }
+                            break;
                     }
-                    return left_g == right_g;
-                    
-                case "!=":
-                    dynamic ?left_h = Evaluate(node.Children[0]);
-                    dynamic ?right_h = Evaluate(node.Children[1]);
-                    if(Identify(left_h ) != Identify(right_h))
-                    {
-                        Input_Error($"Operator '!=' can not be used between values of diferent types");
-                    }
-                    return left_h != right_h;
+                    break;
                 case "@":
-                    dynamic ?left_st = Evaluate(node.Children[0]);
-                    dynamic ?right_st = Evaluate(node.Children[1]);
-                    Type_Expected(right_st,left_st,"string","@");
-                    return left_st + right_st;
+                    object ?left_st = Evaluate(node.Children[0]);
+                    object ?right_st = Evaluate(node.Children[1]);
+                    string ?type_right = Identify(right_st);
+                    string ?type_left = Identify(left_st);
+                    if(type_right == "string" || type_left =="string")
+                    {
+                        return left_st.ToString() + right_st.ToString();
+                    }
+                    break;
                 case "&":
-                    dynamic ?left_and = Evaluate(node.Children[0]);
-                    dynamic ?right_and = Evaluate(node.Children[1]);
+                    object ?left_and = Evaluate(node.Children[0]);
+                    object ?right_and = Evaluate(node.Children[1]);
                     Type_Expected(right_and,left_and,"boolean","&");
-                    return left_and &&  right_and;
+                    return (bool)left_and &&  (bool)right_and;
                 case "|":
                     dynamic ?left_or = Evaluate(node.Children[0]);
                     dynamic ?right_or = Evaluate(node.Children[1]);
                     Type_Expected(right_or,left_or,"boolean","|");
-                    return left_or ||  right_or;
+                    return (bool)left_or ||  (bool)right_or;
 
                 //? Expressions
                 // Si el nodo es el nombre de una función o un parámetro, retorna su valor
@@ -199,37 +200,37 @@ namespace INTERPRETE_C__to_HULK
                     return node.Value;
                 case "print":
                 // Si el nodo es una impresión (print), evalúa el nodo hijo y muestra el resultado
-                    dynamic? value_print = Evaluate(node.Children[0]);
+                    object? value_print = Evaluate(node.Children[0]);
                     Console.WriteLine(value_print);
                     return value_print;
                 // Si el nodo es una función coseno o seno, evalúa el nodo hijo y retorna el coseno o seno del resultado
                 case "cos":
-                    dynamic? value_cos = Evaluate(node.Children[0]);
-                    return Math.Cos(value_cos * (Math.PI/180));//convirtiendo 
+                    object? value_cos = Evaluate(node.Children[0]);
+                    return Math.Cos((double)value_cos * (Math.PI/180));//convirtiendo 
                 case "sin":
-                    dynamic? value_sin = Evaluate(node.Children[0]);
-                    return Math.Sin(value_sin* (Math.PI/180));//convirtiendo
+                    object? value_sin = Evaluate(node.Children[0]);
+                    return Math.Sin((double)value_sin* (Math.PI/180));//convirtiendo
                 // Si el nodo es una función logaritmo, evalúa los nodos hijos y retorna el logaritmo del segundo resultado 
                 //en base al primer resultado  
                 case "log":
-                    dynamic? value_agrument = Evaluate(node.Children[0]);
-                    dynamic? value_base = Evaluate(node.Children[1]);
-                    return Math.Log(value_base,value_agrument);
+                    object? value_agrument = Evaluate(node.Children[0]);
+                    object? value_base = Evaluate(node.Children[1]);
+                    return Math.Log((double)value_base,(double)value_agrument);
                 // Si el nodo es un condicional, evalúa la condición y retorna la evaluación del primer o segundo nodo hijo 
                 //dependiendo de si la condición es verdadera o falsa
                 case "Conditional":
-                    dynamic ?condition =Evaluate( node.Children[0]);
-                    Expected(condition,"boolean","if");
-                    if(condition)
+                    object? condition =Evaluate( node.Children[0]);
+                    Expected(condition,"bool","if");
+                    if((bool)condition)
                     {
                         return Evaluate(node.Children[1]);
                     }
                     return Evaluate(node.Children[2]);
                 // Si el nodo es una función, crea una nueva función y la añade a la lista de funciones declaradas
                 case "Function":
-                    Dictionary<string,dynamic> Var = Get_Var_Param(node.Children[1]);
-                    Function_B function = new Function_B(node.Children[0].Value,node.Children[2],Var);
-                    if(Function_Exist(node.Children[0].Value))
+                    Dictionary<string,object> Var = Get_Var_Param(node.Children[1]);
+                    Function_B function = new Function_B(node.Children[0].Value.ToString(),node.Children[2],Var);
+                    if(Function_Exist(node.Children[0].Value.ToString()))
                     {
                         throw new Exception("The function "+ "\' " + node.Children[0].Value + " \'" + "already exist in the current context");
                     }
@@ -237,14 +238,14 @@ namespace INTERPRETE_C__to_HULK
                     return functions_declared;
                 // Si el nodo es una función declarada, llama a la función y retorna su valor
                 case "declared_function":
-                    string ?name = node.Children[0].Value;
+                    string ?name = node.Children[0].Value.ToString();
                     Node param_f = node.Children[1];
                     if(Function_Exist(name))
                     {
-                        Dictionary<string,dynamic> Scope_actual = new Dictionary<string,dynamic>();
+                        Dictionary<string,object> Scope_actual = new Dictionary<string,object>();
                         Scopes.Add(Scope_actual);
                         int f_position = Call_Function(functions_declared,name,param_f);
-                        dynamic? value = Evaluate(functions_declared[f_position].Operation_Node);
+                        object? value = Evaluate(functions_declared[f_position].Operation_Node);
                         Scopes.Remove(Scopes[Scopes.Count-1]);
                         return value;
                     }
@@ -284,7 +285,7 @@ namespace INTERPRETE_C__to_HULK
             // Para cada parámetro, añade su nombre al diccionario con un valor inicial de null
             for(int i=0; i<parameters.Children.Count; i++)
             {
-                string ?name = parameters.Children[i].Value;
+                string ?name = parameters.Children[i].Value.ToString();
                 Param.Add(name, null);
             } 
             return Param;
@@ -306,7 +307,7 @@ namespace INTERPRETE_C__to_HULK
             // Para cada asignación en la lista de asignaciones, evalúa el valor y añade la variable al nuevo diccionario
             foreach (Node Child in Children_assigment_list.Children)
             {
-                string ?name = Child.Children[0].Value;
+                string ?name = Child.Children[0].Value.ToString();
                 dynamic ?value = Evaluate(Child.Children[1]);
 
                 // Si el nombre de la variable coincide con el nombre de una función existente, lanza una excepción
@@ -359,12 +360,12 @@ namespace INTERPRETE_C__to_HULK
                             f[i].variable_param[key] = param.Children[count].Value;
                             if(Scopes[Scopes.Count - 1].ContainsKey(key))
                             {
-                                Scopes[Scopes.Count - 1][key] = Evaluate(param.Children[count].Value);
+                                Scopes[Scopes.Count - 1][key] = Evaluate((Node)param.Children[count].Value);
                                 count++;
                             }
                             else
                             {
-                                Scopes[Scopes.Count - 1].Add(key, Evaluate(param.Children[count].Value));
+                                Scopes[Scopes.Count - 1].Add(key, Evaluate((Node)param.Children[count].Value));
                                 count++;
                             }
                         }
@@ -392,7 +393,7 @@ namespace INTERPRETE_C__to_HULK
         /// <summary>
         /// Metodo que verifica si la funcion existe declarada
         /// </summary>
-        private bool Function_Exist(string name)
+        private bool Function_Exist(string? name)
         {
             // Recorre la lista de funciones declaradas
             foreach( Function_B b in functions_declared)
@@ -418,7 +419,7 @@ namespace INTERPRETE_C__to_HULK
         /// <summary>
         /// Metodo que verifica si dos valores son del mismo tipo (del tipo desperado)
         /// </summary>
-        private void Type_Expected(dynamic value1, dynamic value2 , string type, string op)
+        private void Type_Expected(object value1, object value2 , string type, string op)
         {
             // Si los valores son del tipo esperado, no hace nada
             if(value1 is double && value2 is double && type == "number")
@@ -443,7 +444,7 @@ namespace INTERPRETE_C__to_HULK
         /// <summary>
         /// Metodo que dependiendo del tipo esperado, verifica si el valor es de ese tipo
         /// </summary>
-        private void Expected(dynamic value1, string type, string express)
+        private void Expected(object value1, string type, string express)
         {
             string v1_type = Identify(value1);
 
@@ -472,11 +473,11 @@ namespace INTERPRETE_C__to_HULK
            
         }
 
-        private string Identify(dynamic value)
+        private string Identify(object value)
         {
             if(value is string) return "string";
             if(value is double) return "number";
-            if(value is bool) return "boolean";
+            if(value is bool) return "bool";
             return "Unknown";
         }
         

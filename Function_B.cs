@@ -6,11 +6,11 @@ namespace INTERPRETE_C_to_HULK
 {
     public class Function_B
     {
-        public Dictionary<string , dynamic> variable_param;
+        public Dictionary<string , object?> variable_param;
         public string Name_function;
         public Node Operation_Node;
 
-        public Function_B(string name, Node node,Dictionary<string , dynamic> param )
+        public Function_B(string name, Node node,Dictionary<string , object> param )
         {
             this.Name_function = name;
             this.Operation_Node = node;

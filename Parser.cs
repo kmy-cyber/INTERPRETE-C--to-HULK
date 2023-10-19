@@ -22,7 +22,7 @@ namespace INTERPRETE_C__to_HULK
         ///<summary>
         /// Diccionario de las variables
         /// </summary>
-        public Dictionary<string,dynamic> Variables;
+        public Dictionary<string,object> Variables;
 
         /// <summary>
         /// Constructor de la clase Parser
@@ -31,7 +31,7 @@ namespace INTERPRETE_C__to_HULK
         {
             position = 0; //inicializa la posicion a 0
             TS = Tokens_Sequency; // Almacena la secuencia de Tokens
-            Variables = new Dictionary<string, dynamic>(); // Inicializa el diccionario de variables
+            Variables = new Dictionary<string, object>(); // Inicializa el diccionario de variables
         }
 
         /// <summary>
@@ -446,7 +446,7 @@ namespace INTERPRETE_C__to_HULK
             /// <summary>
             /// Método que verifica si el token actual es del tipo esperado y avanza a la siguiente posición en ese caso, o lanza una excepción si no lo es
             /// </summary>
-            public void Expect(TokenType tokenType, object value)
+            public void Expect(TokenType tokenType, object? value)
             {
                 if(TS[position].Type == tokenType)
                 {

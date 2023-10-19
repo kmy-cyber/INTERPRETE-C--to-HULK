@@ -49,9 +49,9 @@ namespace INTERPRETE_C__to_HULK
             Value = value;
         }
 
-        public override string ToString() {
-            return $"Token({Type}, {Value})";
-        }
+        //public override string ToString() {
+        //    return $"Token({Type}, {Value})";
+        //}
     }
 
 }
